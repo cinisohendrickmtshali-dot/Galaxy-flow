@@ -3,7 +3,18 @@ const COLORS = [
     '#FFA500', '#800080', '#A52A2A', '#FFFFFF', '#FFC0CB', '#808080'
 ];
 
-// Define when each theme unlocks based on Level
+// ===================================================================
+// ADMOB CONFIGURATION
+// Replace these with your REAL AdMob Unit IDs from your AdMob account
+// ===================================================================
+const ADMOB_CONFIG = {
+    bannerId: 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX',
+    interstitialId: 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX',
+    rewardedId: 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX',
+    isTesting: true // SET THIS TO false BEFORE PUBLISHING!
+};
+// ===================================================================
+
 const THEME_REQUIREMENTS = {
     'default': 1,
     'forest': 10,
@@ -20,15 +31,25 @@ let moveHistory = [];
 let undosRemaining = 5;
 let extraTubesRemaining = 2;
 
-// Save Data
 let maxUnlockedLevel = 1; 
 let coins = 0;
 let levelsPlayed = 0;
 let currentTheme = 'default';
 
-// Settings
 let soundEnabled = true;
 let vibrationEnabled = true;
+
+// --- ADMOB DETECTION ---
+let AdMob = null;
+let isNativeApp = false;
+
+if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) {
+    AdMob = window.Capacitor.Plugins.AdMob;
+    isNativeApp = true;
+    console.log('Running in native app - REAL ADS enabled');
+} else {
+    console.log('Running on web - FAKE ADS for testing');
+}
 
 // --- SOUND ENGINE ---
 let audioCtx = null;
@@ -70,10 +91,46 @@ function playTone(freq, duration, type = 'sine') {
     }
 }
 
+// --- INITIALIZE ADS ---
+async function initializeAds() {
+    if (!isNativeApp || !AdMob) return;
+    
+    try {
+        await AdMob.initialize({
+            testingDevices: [],
+            initializeForTesting: ADMOB_CONFIG.isTesting
+        });
+        console.log('AdMob initialized');
+        
+        await AdMob.showBanner({
+            adId: ADMOB_CONFIG.bannerId,
+            adSize: 'ADAPTIVE_BANNER',
+            position: 'BOTTOM_CENTER',
+            margin: 0,
+            isTesting: ADMOB_CONFIG.isTesting
+        });
+        console.log('Banner ad shown');
+    } catch (e) {
+        console.error('AdMob init error:', e);
+    }
+}
+
+document.addEventListener('deviceready', () => {
+    setTimeout(initializeAds, 500);
+}, false);
+
+setTimeout(() => {
+    if (isNativeApp) initializeAds();
+}, 1500);
+
 // PWA Setup
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
+            .then(reg => {
+                // Force update check every time
+                reg.update();
+            })
             .catch(err => console.log('Service Worker failed:', err));
     });
 }
@@ -167,14 +224,12 @@ function nextLevel() {
         if (currentLevelIndex + 2 > maxUnlockedLevel) {
             maxUnlockedLevel = currentLevelIndex + 2;
             saveProgress();
-            
-            // Check if a new theme was unlocked
             checkThemeUnlocks(oldMax, maxUnlockedLevel);
         }
         
         levelsPlayed++;
         if (levelsPlayed % 3 === 0) {
-            showFakeAd(3, 'Interstitial', () => loadLevel(currentLevelIndex + 1));
+            showInterstitialAd(() => loadLevel(currentLevelIndex + 1));
         } else {
             loadLevel(currentLevelIndex + 1);
         }
@@ -347,7 +402,6 @@ function checkWinCondition() {
     setTimeout(() => playTone(1200, 0.3, 'sine'), 200);
 }
 
-// --- MENU & SETTINGS ---
 function openMenu() {
     renderMenuGrid();
     renderThemesGrid(); 
@@ -378,7 +432,6 @@ function showThemes() {
 function renderMenuGrid() {
     const grid = document.getElementById('levels-grid');
     grid.innerHTML = '';
-    // FIXED: Extended from 30 to 100 levels
     for (let i = 1; i <= 100; i++) {
         const card = document.createElement('div');
         const isUnlocked = i <= maxUnlockedLevel;
@@ -393,7 +446,6 @@ function renderMenuGrid() {
     }
 }
 
-// --- DYNAMIC THEME RENDERING ---
 function renderThemesGrid() {
     const themes = ['default', 'forest', 'desert', 'sunset', 'lava', 'ice'];
     
@@ -461,7 +513,46 @@ function updateSettingsUI() {
     document.getElementById('toggle-sound').innerText = soundEnabled ? 'ON' : 'OFF';
 }
 
-// --- AD FUNCTIONS ---
+// ===================================================================
+// AD FUNCTIONS
+// ===================================================================
+
+async function showRewardedAd(callback) {
+    if (isNativeApp && AdMob) {
+        try {
+            await AdMob.prepareRewardVideoAd({
+                adId: ADMOB_CONFIG.rewardedId,
+                isTesting: ADMOB_CONFIG.isTesting
+            });
+            await AdMob.showRewardVideoAd();
+            if (callback) callback();
+        } catch (e) {
+            console.error('Rewarded ad error:', e);
+            alert('Ad not available. Please try again.');
+        }
+    } else {
+        showFakeAd(5, 'Reward', callback);
+    }
+}
+
+async function showInterstitialAd(callback) {
+    if (isNativeApp && AdMob) {
+        try {
+            await AdMob.prepareInterstitial({
+                adId: ADMOB_CONFIG.interstitialId,
+                isTesting: ADMOB_CONFIG.isTesting
+            });
+            await AdMob.showInterstitial();
+            if (callback) callback();
+        } catch (e) {
+            console.error('Interstitial ad error:', e);
+            if (callback) callback();
+        }
+    } else {
+        showFakeAd(3, 'Interstitial', callback);
+    }
+}
+
 function showFakeAd(duration, type, callback) {
     const overlay = document.getElementById('ad-overlay');
     const timerDisplay = document.getElementById('ad-timer');
@@ -494,7 +585,7 @@ function showFakeAd(duration, type, callback) {
 }
 
 function watchAdForCoins() {
-    showFakeAd(5, 'Reward', () => {
+    showRewardedAd(() => {
         coins += 150;
         saveProgress();
         updateControlUI();
@@ -504,7 +595,7 @@ function watchAdForCoins() {
 
 function watchAdForUndos() {
     document.getElementById('out-of-tools-modal').style.display = 'none';
-    showFakeAd(5, 'Reward', () => {
+    showRewardedAd(() => {
         undosRemaining += 3;
         updateControlUI();
         playTone(800, 0.2);
@@ -513,7 +604,7 @@ function watchAdForUndos() {
 
 function watchAdForTubes() {
     document.getElementById('out-of-tools-modal').style.display = 'none';
-    showFakeAd(5, 'Reward', () => {
+    showRewardedAd(() => {
         extraTubesRemaining += 1;
         updateControlUI();
         playTone(800, 0.2);
@@ -527,4 +618,4 @@ function closeOutOfTools() {
 // Initialize game
 loadSaveData();
 loadLevel(0);
-renderThemesGrid(); 
+renderThemesGrid();
