@@ -246,16 +246,15 @@ body {
     justify-content: space-around;
     padding: 10px;
     background-color: #2a2a4a;
-    flex-wrap: wrap;
 }
 
 .tab {
     background: none;
     border: none;
     color: #888;
-    font-size: 13px;
+    font-size: 14px;
     cursor: pointer;
-    padding: 8px 12px;
+    padding: 10px 20px;
     border-radius: 10px;
     transition: all 0.2s ease;
 }
@@ -265,20 +264,22 @@ body {
     color: white;
 }
 
-/* --- TAB FIX --- */
-.tab-pane {
-    width: 100%;
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.tab-pane.active {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+/* --- GRID LAYOUTS --- */
+#levels-grid, #themes-grid {
     padding: 15px;
+    gap: 12px;
     justify-content: center;
     align-content: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#levels-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+#themes-grid {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .level-card, .shop-item {
@@ -322,19 +323,6 @@ body {
     border-radius: 10px;
     margin-bottom: 10px;
     border: 2px solid #555;
-}
-
-.ball-preview {
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-}
-
-.shape-preview {
-    width: 40px;
-    height: 80px;
-    border: 3px solid #6a6a9a;
-    border-top: none;
 }
 
 .buy-btn {
