@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Flow</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a2e">
 </head>
@@ -52,7 +52,7 @@
 
         <div id="tab-content">
             <!-- Levels Grid -->
-            <div id="levels-grid" class="tab-pane active"></div>
+            <div id="levels-grid" class="tab-pane active" style="display: grid;"></div>
             
             <!-- Themes Grid -->
             <div id="themes-grid" class="tab-pane" style="display: none;">
@@ -142,6 +142,10 @@
                 <span>Vibration</span>
                 <button id="toggle-vibe" class="toggle-btn" onclick="toggleVibration()">ON</button>
             </div>
+            <div class="setting-item">
+                <span>Test Sound</span>
+                <button class="toggle-btn" onclick="playTone(600, 0.2)">🔊 Play</button>
+            </div>
         </div>
     </div>
 
@@ -168,6 +172,6 @@
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="game.js?v=3"></script>
 </body>
 </html>
