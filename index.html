@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Flow</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
 </head>
 <body>
     <div id="game-wrapper">
         <div id="header">
             <button id="menu-btn" onclick="openMenu()">☰</button>
             <h2>Level <span id="level-display">1</span></h2>
-            <button id="settings-btn">⚙️</button>
+            <button id="settings-btn" onclick="openSettings()">⚙️</button>
         </div>
         
         <div id="game-container"></div>
@@ -37,26 +39,102 @@
     <div id="menu-screen">
         <div id="menu-header">
             <div id="coin-display">🪙 <span id="coin-count">0</span></div>
-            <h2>Themes</h2>
+            <h2 id="menu-title">Levels</h2>
             <button id="close-menu-btn" onclick="closeMenu()">✕</button>
         </div>
         
         <div id="menu-tabs">
-            <button class="tab active">🔬 Tubes</button>
-            <button class="tab">🖼️ Themes</button>
-            <button class="tab">⚪ Balls</button>
-            <button class="tab">⬜ Shapes</button>
+            <button class="tab active" onclick="switchTab('levels', this)">🎯 Levels</button>
+            <button class="tab" onclick="switchTab('themes', this)">🖼️ Themes</button>
+            <button class="tab" onclick="switchTab('balls', this)">⚪ Balls</button>
+            <button class="tab" onclick="switchTab('shapes', this)">⬜ Shapes</button>
         </div>
 
-        <div id="level-grid"></div>
+        <div id="tab-content">
+            <!-- Levels Grid -->
+            <div id="level-grid" class="tab-pane active"></div>
+            
+            <!-- Themes Grid -->
+            <div id="themes-grid" class="tab-pane">
+                <div class="shop-item" data-theme="default">
+                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
+                    <p>Space (Default)</p>
+                    <button class="buy-btn owned">Owned</button>
+                </div>
+                <div class="shop-item" data-theme="forest">
+                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%);"></div>
+                    <p>Forest</p>
+                    <button class="buy-btn" onclick="buyTheme('forest', 500)">500 🪙</button>
+                </div>
+                <div class="shop-item" data-theme="desert">
+                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%);"></div>
+                    <p>Desert</p>
+                    <button class="buy-btn" onclick="buyTheme('desert', 500)">500 🪙</button>
+                </div>
+            </div>
+
+            <!-- Balls Grid -->
+            <div id="balls-grid" class="tab-pane">
+                <div class="shop-item">
+                    <div class="shop-preview ball-preview classic"></div>
+                    <p>Classic</p>
+                    <button class="buy-btn owned">Owned</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-preview ball-preview glow" style="background:#00ff00; box-shadow: 0 0 15px #00ff00;"></div>
+                    <p>Neon Glow</p>
+                    <button class="buy-btn" onclick="buyAdItem('balls', 'glow')">📺 Free</button>
+                </div>
+            </div>
+
+            <!-- Shapes Grid -->
+            <div id="shapes-grid" class="tab-pane">
+                <div class="shop-item">
+                    <div class="shop-preview shape-preview" style="border-radius: 0 0 22px 22px;"></div>
+                    <p>Test Tube</p>
+                    <button class="buy-btn owned">Owned</button>
+                </div>
+            </div>
+        </div>
 
         <div id="menu-footer">
-            <!-- Added onclick here -->
             <button id="ad-reward-btn" onclick="watchAdForCoins()">📺 🪙 +150</button>
         </div>
     </div>
 
-    <!-- --- NEW: FAKE AD OVERLAY --- -->
+    <!-- Settings Screen -->
+    <div id="settings-screen">
+        <div id="settings-header">
+            <h2>Settings</h2>
+            <button onclick="closeSettings()">✕</button>
+        </div>
+        <div class="settings-list">
+            <div class="setting-item">
+                <span>Sound Effects</span>
+                <button id="toggle-sound" class="toggle-btn" onclick="toggleSound()">ON</button>
+            </div>
+            <div class="setting-item">
+                <span>Vibration</span>
+                <button id="toggle-vibe" class="toggle-btn" onclick="toggleVibration()">ON</button>
+            </div>
+            <div class="setting-item">
+                <span>Restore Purchases</span>
+                <button class="toggle-btn">></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Out of Tools Modal (Watch Ads to continue) -->
+    <div id="out-of-tools-modal">
+        <div class="modal-content">
+            <h2>Out of Undos! 😢</h2>
+            <p>Watch a short ad to get +3 Undos?</p>
+            <button class="ad-btn" onclick="watchAdForUndos()">📺 Watch Ad</button>
+            <button class="cancel-btn" onclick="closeOutOfTools()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Fake Ad Overlay -->
     <div id="ad-overlay">
         <div class="ad-content">
             <h2>Advertisement</h2>
