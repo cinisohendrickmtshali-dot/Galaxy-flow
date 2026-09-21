@@ -68,7 +68,9 @@ body {
     max-width: 280px; 
     flex-grow: 1;
     padding: 10px 0;
-    overflow-y: auto;
+    overflow: visible; 
+    transform-origin: center center; 
+    transition: transform 0.3s ease; 
 }
 
 #controls {
@@ -570,5 +572,13 @@ body {
 
 #ad-close-btn:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- ADDED AT BOTTOM: THEME LOCK STYLING --- */
+.buy-btn.locked-theme {
+    background-color: #444;
+    color: #888;
+    box-shadow: none;
     cursor: not-allowed;
 }
