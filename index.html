@@ -3,13 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ball Sort Puzzle</title>
+    <title>Galaxy Flow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="header">
+        <h2>Level <span id="level-display">1</span></h2>
+        <button id="restart-btn" onclick="restartLevel()">↻</button>
+    </div>
+    
     <div id="game-container">
         <!-- Tubes will be generated here -->
     </div>
+
+    <!-- The Win Screen (Hidden by default) -->
+    <div id="win-screen">
+        <h1>AWESOME</h1>
+        <p>Level Complete!</p>
+        <button onclick="nextLevel()">Next</button>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>
