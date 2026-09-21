@@ -1,5 +1,5 @@
 body {
-    background-color: #1a1a2e;
+    background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);
     margin: 0;
     height: 100vh;
     display: flex;
@@ -17,6 +17,8 @@ body {
     width: 100%;
     max-width: 400px;
     padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 #header {
@@ -24,43 +26,55 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    background-color: rgba(0,0,0,0.3);
+    padding: 10px 15px;
+    border-radius: 15px;
 }
 
 #header h2 {
     margin: 0;
-    font-size: 22px;
-    color: #ccc;
+    font-size: 20px;
+    color: #fff;
 }
 
-#menu-btn, #restart-btn {
-    background: none;
-    border: 2px solid #ccc;
-    color: #ccc;
-    font-size: 20px;
+#menu-btn, #settings-btn {
+    background: #5a5a9a;
+    border: none;
+    color: white;
+    font-size: 18px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* --- THE LAYOUT FIX --- */
 #game-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-content: center;
+    align-items: flex-end;
     gap: 10px;
     width: 100%;
-    min-height: 240px;
+    max-width: 280px; /* Forces exactly 5 tubes per row */
+    flex-grow: 1;
+    padding: 10px 0;
+    overflow-y: auto;
 }
 
 #controls {
     display: flex;
     gap: 30px;
-    margin-top: 30px;
+    margin-top: 15px;
     width: 100%;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 #controls button {
@@ -68,9 +82,9 @@ body {
     border: none;
     border-radius: 15px;
     color: white;
-    font-size: 28px;
-    width: 70px;
-    height: 70px;
+    font-size: 26px;
+    width: 65px;
+    height: 65px;
     cursor: pointer;
     position: relative;
     display: flex;
@@ -90,25 +104,25 @@ body {
     right: -5px;
     background-color: #cc3333;
     color: white;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
-    padding: 2px 8px;
+    padding: 2px 7px;
     border-radius: 20px;
     border: 2px solid #1a1a2e;
 }
 
 .tube {
-    width: 60px;
-    height: 240px;
-    border: 4px solid #555;
+    width: 45px;
+    height: 180px;
+    border: 3px solid #6a6a9a;
     border-top: none;
-    border-radius: 0 0 30px 30px;
+    border-radius: 0 0 22px 22px;
     display: flex;
     flex-direction: column-reverse;
     align-items: center;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(0, 0, 0, 0.3);
     transition: transform 0.1s;
 }
 
@@ -117,11 +131,24 @@ body {
 }
 
 .ball {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     margin-bottom: 2px;
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5);
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- NEW: HIDDEN BALL STYLING --- */
+.hidden-ball {
+    background-color: #2a2a4a !important; /* Overrides color */
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8);
+    border: 1px solid #4a4a6a;
 }
 
 /* --- WIN SCREEN --- */
@@ -176,7 +203,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #1a1a2e;
+    background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);
     flex-direction: column;
     z-index: 20;
     overflow-y: auto;
@@ -186,7 +213,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 15px;
     background-color: rgba(0,0,0,0.2);
 }
 
@@ -195,6 +222,7 @@ body {
     padding: 5px 15px;
     border-radius: 20px;
     font-weight: bold;
+    font-size: 14px;
 }
 
 #close-menu-btn {
@@ -202,8 +230,8 @@ body {
     border: none;
     color: white;
     font-size: 18px;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -211,7 +239,7 @@ body {
 #menu-tabs {
     display: flex;
     justify-content: space-around;
-    padding: 15px;
+    padding: 10px;
     background-color: #2a2a4a;
 }
 
@@ -219,9 +247,9 @@ body {
     background: none;
     border: none;
     color: #888;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    padding: 10px;
+    padding: 8px 12px;
     border-radius: 10px;
 }
 
@@ -232,23 +260,22 @@ body {
 
 #level-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    padding: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 15px;
     justify-content: center;
 }
 
 .level-card {
     background-color: #2a2a4a;
-    border-radius: 15px;
-    height: 120px;
+    border-radius: 12px;
+    height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
     border: 2px solid #444;
 }
 
@@ -257,19 +284,18 @@ body {
 }
 
 .level-card .lock-icon {
-    font-size: 30px;
+    font-size: 24px;
     margin-bottom: 5px;
 }
 
 .level-card .level-number {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
-    z-index: 2;
 }
 
 #menu-footer {
     margin-top: auto;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     justify-content: center;
 }
@@ -278,13 +304,13 @@ body {
     background-color: #00CC00;
     border: none;
     color: white;
-    padding: 15px 30px;
+    padding: 12px 25px;
     border-radius: 15px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 4px 0 #008800;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
