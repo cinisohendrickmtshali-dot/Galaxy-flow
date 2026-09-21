@@ -3,6 +3,16 @@ const COLORS = [
     '#FFA500', '#800080', '#A52A2A', '#FFFFFF', '#FFC0CB', '#808080'
 ];
 
+// Define when each theme unlocks based on Level
+const THEME_REQUIREMENTS = {
+    'default': 1,
+    'forest': 10,
+    'desert': 20,
+    'sunset': 30,
+    'lava': 40,
+    'ice': 50
+};
+
 let currentLevelIndex = 0;
 let tubes = [];
 let selectedTubeIndex = null;
@@ -14,14 +24,13 @@ let extraTubesRemaining = 2;
 let maxUnlockedLevel = 1; 
 let coins = 0;
 let levelsPlayed = 0;
-let ownedThemes = ['default'];
 let currentTheme = 'default';
 
 // Settings
 let soundEnabled = true;
 let vibrationEnabled = true;
 
-// --- SOUND ENGINE (Mobile Friendly) ---
+// --- SOUND ENGINE ---
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) {
@@ -36,7 +45,6 @@ function initAudio() {
     }
 }
 
-// Unlock AudioContext on the very first user interaction (required by mobile browsers)
 document.body.addEventListener('click', () => {
     initAudio();
 }, { once: true });
@@ -104,16 +112,12 @@ function loadSaveData() {
     const savedLevel = localStorage.getItem('galaxy_flow_max_level');
     const savedCoins = localStorage.getItem('galaxy_flow_coins');
     const savedTheme = localStorage.getItem('galaxy_flow_theme');
-    const savedThemes = localStorage.getItem('galaxy_flow_owned_themes');
     const savedSound = localStorage.getItem('galaxy_flow_sound');
-    const savedVibe = localStorage.getItem('galaxy_flow_vibe');
     
     if (savedLevel) maxUnlockedLevel = parseInt(savedLevel);
     if (savedCoins) coins = parseInt(savedCoins);
     if (savedTheme) currentTheme = savedTheme;
-    if (savedThemes) ownedThemes = JSON.parse(savedThemes);
     if (savedSound !== null) soundEnabled = savedSound === 'true';
-    if (savedVibe !== null) vibrationEnabled = savedVibe === 'true';
     
     applyTheme();
     updateSettingsUI();
@@ -124,9 +128,7 @@ function saveProgress() {
     localStorage.setItem('galaxy_flow_max_level', maxUnlockedLevel);
     localStorage.setItem('galaxy_flow_coins', coins);
     localStorage.setItem('galaxy_flow_theme', currentTheme);
-    localStorage.setItem('galaxy_flow_owned_themes', JSON.stringify(ownedThemes));
     localStorage.setItem('galaxy_flow_sound', soundEnabled);
-    localStorage.setItem('galaxy_flow_vibe', vibrationEnabled);
 }
 
 function loadLevel(levelIndex) {
@@ -160,9 +162,14 @@ function restartLevel() { loadLevel(currentLevelIndex); }
 
 function nextLevel() {
     if (currentLevelIndex + 1 < 100) { 
+        let oldMax = maxUnlockedLevel;
+        
         if (currentLevelIndex + 2 > maxUnlockedLevel) {
             maxUnlockedLevel = currentLevelIndex + 2;
             saveProgress();
+            
+            // Check if a new theme was unlocked
+            checkThemeUnlocks(oldMax, maxUnlockedLevel);
         }
         
         levelsPlayed++;
@@ -176,6 +183,16 @@ function nextLevel() {
     }
 }
 
+function checkThemeUnlocks(oldLevel, newLevel) {
+    for (const [theme, reqLevel] of Object.entries(THEME_REQUIREMENTS)) {
+        if (oldLevel < reqLevel && newLevel >= reqLevel) {
+            setTimeout(() => {
+                alert(`🎉 NEW THEME UNLOCKED! 🎉\n\nYou reached Level ${reqLevel} and unlocked the ${theme.toUpperCase()} theme! Go to the Themes menu to equip it.`);
+            }, 500);
+        }
+    }
+}
+
 function updateControlUI() {
     document.getElementById('undo-count').innerText = undosRemaining;
     document.getElementById('add-tube-count').innerText = extraTubesRemaining;
@@ -185,6 +202,14 @@ function updateControlUI() {
 function render() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
+
+    let scale = 1;
+    if (tubes.length > 5) scale = 0.85;
+    if (tubes.length > 8) scale = 0.7;
+    if (tubes.length > 12) scale = 0.55;
+    if (tubes.length > 16) scale = 0.45;
+    
+    container.style.transform = `scale(${scale})`;
 
     tubes.forEach((tube, index) => {
         const tubeDiv = document.createElement('div');
@@ -325,15 +350,15 @@ function checkWinCondition() {
 // --- MENU & SETTINGS ---
 function openMenu() {
     renderMenuGrid();
+    renderThemesGrid(); 
     document.getElementById('menu-screen').style.display = 'flex';
-    showLevels(); // Default to Levels tab
+    showLevels(); 
 }
 
 function closeMenu() {
     document.getElementById('menu-screen').style.display = 'none';
 }
 
-// --- SIMPLEST POSSIBLE TAB SWITCHER ---
 function showLevels() {
     document.getElementById('levels-grid').style.display = 'grid';
     document.getElementById('themes-grid').style.display = 'none';
@@ -367,6 +392,52 @@ function renderMenuGrid() {
     }
 }
 
+// --- DYNAMIC THEME RENDERING ---
+function renderThemesGrid() {
+    const themes = ['default', 'forest', 'desert', 'sunset', 'lava', 'ice'];
+    
+    themes.forEach(theme => {
+        const btn = document.getElementById('btn-' + theme);
+        if (!btn) return; 
+        
+        const reqLevel = THEME_REQUIREMENTS[theme];
+        
+        if (currentTheme === theme) {
+            btn.innerText = 'Equipped';
+            btn.className = 'buy-btn owned';
+            btn.onclick = null;
+        } else if (maxUnlockedLevel >= reqLevel) {
+            btn.innerText = 'Equip';
+            btn.className = 'buy-btn';
+            btn.onclick = () => equipTheme(theme);
+        } else {
+            btn.innerText = `Level ${reqLevel} 🔒`;
+            btn.className = 'buy-btn locked-theme';
+            btn.onclick = null;
+        }
+    });
+}
+
+function equipTheme(theme) {
+    if (maxUnlockedLevel >= THEME_REQUIREMENTS[theme]) {
+        currentTheme = theme;
+        applyTheme();
+        saveProgress();
+        playTone(700, 0.2);
+        renderThemesGrid(); 
+    }
+}
+
+function applyTheme() {
+    const root = document.documentElement;
+    if (currentTheme === 'default') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%)');
+    else if (currentTheme === 'forest') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%)');
+    else if (currentTheme === 'desert') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%)');
+    else if (currentTheme === 'sunset') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #ff7e5f, #feb47b)');
+    else if (currentTheme === 'lava') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%)');
+    else if (currentTheme === 'ice') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #00ffff 0%, #001a33 100%)');
+}
+
 function openSettings() {
     document.getElementById('settings-screen').style.display = 'flex';
 }
@@ -387,51 +458,6 @@ function toggleSound() {
 
 function updateSettingsUI() {
     document.getElementById('toggle-sound').innerText = soundEnabled ? 'ON' : 'OFF';
-}
-
-// --- SHOP LOGIC ---
-function applyTheme() {
-    const root = document.documentElement;
-    if (currentTheme === 'default') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%)');
-    else if (currentTheme === 'forest') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%)');
-    else if (currentTheme === 'desert') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%)');
-    else if (currentTheme === 'sunset') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #ff7e5f, #feb47b)');
-    else if (currentTheme === 'lava') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%)');
-}
-
-function buyTheme(theme, price) {
-    if (ownedThemes.includes(theme)) {
-        currentTheme = theme;
-        applyTheme();
-        saveProgress();
-        alert("Theme equipped!");
-        return;
-    }
-    if (coins >= price) {
-        coins -= price;
-        ownedThemes.push(theme);
-        currentTheme = theme;
-        applyTheme();
-        updateControlUI();
-        saveProgress();
-        playTone(700, 0.2); 
-        alert("Theme unlocked and equipped!");
-    } else {
-        alert("Not enough coins! Watch more ads.");
-    }
-}
-
-function watchAdForTheme(theme) {
-    showFakeAd(5, 'Reward', () => {
-        if (!ownedThemes.includes(theme)) {
-            ownedThemes.push(theme);
-        }
-        currentTheme = theme;
-        applyTheme();
-        saveProgress();
-        playTone(700, 0.2);
-        alert("Amazing! You unlocked the " + theme.toUpperCase() + " theme!");
-    });
 }
 
 // --- AD FUNCTIONS ---
@@ -500,3 +526,4 @@ function closeOutOfTools() {
 // Initialize game
 loadSaveData();
 loadLevel(0);
+renderThemesGrid(); 
