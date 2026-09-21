@@ -10,7 +10,6 @@ body {
     overflow: hidden;
 }
 
-/* This keeps everything stacked vertically */
 #game-wrapper {
     display: flex;
     flex-direction: column;
@@ -25,7 +24,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px; /* Pushes the tubes down */
+    margin-bottom: 20px;
 }
 
 #header h2 {
@@ -50,7 +49,52 @@ body {
     justify-content: center;
     gap: 10px;
     width: 100%;
+    min-height: 240px;
 }
+
+/* --- NEW CONTROLS SECTION --- */
+#controls {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    width: 100%;
+    justify-content: center;
+}
+
+#controls button {
+    background-color: #5a5a9a;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 28px;
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    position: relative; /* Allows us to position the badge */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 0 #3a3a6a;
+}
+
+#controls button:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: #cc3333;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 2px solid #1a1a2e;
+}
+/* ---------------------------- */
 
 .tube {
     width: 60px;
@@ -79,10 +123,9 @@ body {
     box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5);
 }
 
-/* The Win Screen Overlay */
 #win-screen {
     display: none; 
-    position: fixed; /* Covers the whole screen */
+    position: fixed; 
     top: 0;
     left: 0;
     width: 100%;
