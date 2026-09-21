@@ -26,14 +26,14 @@ let coins = 0;
 
 // --- LEVEL GENERATOR ---
 function generateLevel(levelNum) {
-    // Difficulty scaling: More colors as you go up (gets harder faster now)
-    let numColors = Math.min(3 + Math.floor(levelNum / 1.5), 10); 
+    let numColors = Math.min(2 + Math.floor(levelNum / 1.5), 10); 
     let numBalls = 4; 
     
     let balls = [];
     for (let i = 0; i < numColors; i++) {
         for (let j = 0; j < numBalls; j++) {
-            balls.push(COLORS[i % COLORS.length]);
+            // Store as objects now to track 'revealed' state
+            balls.push({ color: COLORS[i % COLORS.length], revealed: false });
         }
     }
     
@@ -43,7 +43,6 @@ function generateLevel(levelNum) {
         [balls[i], balls[j]] = [balls[j], balls[i]];
     }
     
-    // Distribute into tubes
     let levelTubes = [];
     for (let i = 0; i < numColors; i++) {
         let tube = [];
@@ -53,7 +52,6 @@ function generateLevel(levelNum) {
         levelTubes.push(tube);
     }
     
-    // Add 2 empty tubes
     levelTubes.push([]);
     levelTubes.push([]);
     
@@ -83,6 +81,15 @@ function loadLevel(levelIndex) {
 
     currentLevelIndex = levelIndex;
     tubes = generateLevel(levelIndex + 1);
+    
+    // --- FIX: DISABLE HIDDEN BALLS FOR LEVELS 1 TO 9 ---
+    if (levelIndex < 9) {
+        tubes.forEach(tube => {
+            tube.forEach(ball => {
+                ball.revealed = true; // Force reveal for easy levels
+            });
+        });
+    }
     
     selectedTubeIndex = null;
     moveHistory = [];
@@ -119,7 +126,7 @@ function updateControlUI() {
     document.getElementById('coin-count').innerText = coins;
 }
 
-// --- UPDATED RENDER FUNCTION (HIDDEN BALLS) ---
+// --- RENDER FUNCTION ---
 function render() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
@@ -135,16 +142,18 @@ function render() {
 
         tubeDiv.onclick = () => handleTubeClick(index);
 
-        tube.forEach((color, ballIndex) => {
+        tube.forEach((ballObj, ballIndex) => {
             const ballDiv = document.createElement('div');
             ballDiv.className = 'ball';
             
-            // Check if this is the TOP ball (last in array)
+            // LOGIC FIX: Reveal the top ball permanently
             if (ballIndex === tube.length - 1) {
-                // Top ball: Show its real color
-                ballDiv.style.backgroundColor = color;
+                ballObj.revealed = true;
+            }
+
+            if (ballObj.revealed) {
+                ballDiv.style.backgroundColor = ballObj.color;
             } else {
-                // Hidden ball: Show the question mark
                 ballDiv.classList.add('hidden-ball');
                 ballDiv.innerText = '?';
             }
@@ -172,11 +181,12 @@ function handleTubeClick(index) {
             return;
         }
 
-        // Multi-ball movement logic
-        const topColor = fromTube[fromTube.length - 1];
+        // Multi-ball movement logic (now accessing .color)
+        const topBall = fromTube[fromTube.length - 1];
+        const topColor = topBall.color;
         let count = 0;
         for (let i = fromTube.length - 1; i >= 0; i--) {
-            if (fromTube[i] === topColor) {
+            if (fromTube[i].color === topColor) {
                 count++;
             } else {
                 break;
@@ -186,7 +196,8 @@ function handleTubeClick(index) {
         const spaceAvailable = 4 - toTube.length;
         const toMove = Math.min(count, spaceAvailable);
 
-        const topTargetColor = toTube.length > 0 ? toTube[toTube.length - 1] : null;
+        const topTargetBall = toTube.length > 0 ? toTube[toTube.length - 1] : null;
+        const topTargetColor = topTargetBall ? topTargetBall.color : null;
         
         if (toMove > 0 && (toTube.length === 0 || topColor === topTargetColor)) {
             moveHistory.push({
@@ -196,8 +207,9 @@ function handleTubeClick(index) {
             });
 
             for (let i = 0; i < toMove; i++) {
-                let ball = fromTube.pop();
-                toTube.push(ball);
+                let ballObj = fromTube.pop();
+                ballObj.revealed = true; // Reveal it permanently once moved
+                toTube.push(ballObj);
             }
         }
 
@@ -215,8 +227,8 @@ function undoMove() {
     const toTube = tubes[lastMove.from]; 
     
     for (let i = 0; i < lastMove.count; i++) {
-        let ball = fromTube.pop();
-        toTube.push(ball);
+        let ballObj = fromTube.pop();
+        toTube.push(ballObj);
     }
     
     undosRemaining--;
@@ -240,9 +252,9 @@ function checkWinCondition() {
         if (tube.length === 0) continue; 
         if (tube.length !== 4) return; 
         
-        const firstColor = tube[0];
+        const firstColor = tube[0].color; // Access color property
         for (let j = 1; j < tube.length; j++) {
-            if (tube[j] !== firstColor) return; 
+            if (tube[j].color !== firstColor) return; 
         }
     }
     
