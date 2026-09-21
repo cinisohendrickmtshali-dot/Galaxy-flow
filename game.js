@@ -1,6 +1,3 @@
-// Define all your levels here. 
-// Each array inside the main array is a tube. 
-// The colors are read from bottom to top.
 const LEVELS = [
     // Level 1
     [
@@ -17,7 +14,7 @@ const LEVELS = [
         [],
         []
     ],
-    // Level 3 (Add more colors)
+    // Level 3
     [
         ['#FF0000', '#0000FF', '#00FF00', '#FFFF00'],
         ['#FFFF00', '#00FF00', '#0000FF', '#FF0000'],
@@ -31,32 +28,45 @@ let currentLevelIndex = 0;
 let tubes = [];
 let selectedTubeIndex = null;
 
-// Function to start a level
+// New State variables for Stage 3
+let moveHistory = [];
+let undosRemaining = 5;
+let extraTubesRemaining = 2;
+
 function loadLevel(levelIndex) {
-    // Deep copy the level data so we don't mess up the original array
     tubes = JSON.parse(JSON.stringify(LEVELS[levelIndex]));
     selectedTubeIndex = null;
+    
+    // Reset the helper tools for every new level
+    moveHistory = [];
+    undosRemaining = 5;
+    extraTubesRemaining = 2;
+    
     document.getElementById('level-display').innerText = levelIndex + 1;
     document.getElementById('win-screen').style.display = 'none';
+    updateControlUI();
     render();
 }
 
-// Function to restart the current level
 function restartLevel() {
     loadLevel(currentLevelIndex);
 }
 
-// Function to go to the next level
 function nextLevel() {
     currentLevelIndex++;
     if (currentLevelIndex >= LEVELS.length) {
         alert("You finished all levels! More coming soon.");
-        currentLevelIndex = 0; // Loop back to start for now
+        currentLevelIndex = 0; 
     }
     loadLevel(currentLevelIndex);
 }
 
-// Render the game board
+// Updates the numbers on the buttons
+function updateControlUI() {
+    document.getElementById('undo-count').innerText = undosRemaining;
+    document.getElementById('add-tube-count').innerText = extraTubesRemaining;
+}
+
 function render() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
@@ -65,7 +75,6 @@ function render() {
         const tubeDiv = document.createElement('div');
         tubeDiv.className = 'tube';
         
-        // Highlight the selected tube
         if (selectedTubeIndex === index) {
             tubeDiv.style.borderColor = '#00FF00';
             tubeDiv.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
@@ -84,12 +93,11 @@ function render() {
     });
 }
 
-// Handle clicking a tube
 function handleTubeClick(index) {
     if (selectedTubeIndex === null) {
         if (tubes[index].length > 0) {
             selectedTubeIndex = index;
-            render(); // Re-render to show highlight
+            render(); 
         }
     } else {
         const fromTube = tubes[selectedTubeIndex];
@@ -104,37 +112,69 @@ function handleTubeClick(index) {
         const ballToMove = fromTube[fromTube.length - 1];
         const topBallInTarget = toTube[toTube.length - 1];
 
-        // Valid move: Target is empty OR top colors match. AND target is not full (max 4)
+        // Check if move is valid
         if (toTube.length < 4 && (toTube.length === 0 || ballToMove === topBallInTarget)) {
+            // Record the move for the Undo button BEFORE we move it
+            moveHistory.push({
+                from: selectedTubeIndex,
+                to: index,
+                color: ballToMove
+            });
+
             fromTube.pop();
             toTube.push(ballToMove);
         }
 
         selectedTubeIndex = null;
         render();
-        
-        // Check if the player won
         checkWinCondition();
     }
 }
 
-// Check if all tubes are empty or full of a single color
+// --- NEW FUNCTIONS FOR STAGE 3 ---
+
+function undoMove() {
+    if (undosRemaining <= 0 || moveHistory.length === 0) return;
+    
+    // Get the last move from the history
+    const lastMove = moveHistory.pop();
+    
+    // Reverse the move
+    const fromTube = tubes[lastMove.to]; // The tube the ball is currently in
+    const toTube = tubes[lastMove.from]; // The tube the ball came from
+    
+    fromTube.pop(); // Remove it from the current tube
+    toTube.push(lastMove.color); // Put it back in the original tube
+    
+    undosRemaining--;
+    updateControlUI();
+    selectedTubeIndex = null;
+    render();
+}
+
+function addTube() {
+    if (extraTubesRemaining <= 0) return;
+    
+    tubes.push([]); // Add a new empty tube to the game
+    extraTubesRemaining--;
+    updateControlUI();
+    render();
+}
+
 function checkWinCondition() {
     for (let i = 0; i < tubes.length; i++) {
         const tube = tubes[i];
-        if (tube.length === 0) continue; // Empty tubes are fine
-        
-        if (tube.length !== 4) return; // Not full, not won yet
+        if (tube.length === 0) continue; 
+        if (tube.length !== 4) return; 
         
         const firstColor = tube[0];
         for (let j = 1; j < tube.length; j++) {
-            if (tube[j] !== firstColor) return; // Different colors, not won yet
+            if (tube[j] !== firstColor) return; 
         }
     }
     
-    // If we get here, all tubes are sorted!
     document.getElementById('win-screen').style.display = 'flex';
 }
 
-// Start the game on Level 1
+// Start the game
 loadLevel(0);
