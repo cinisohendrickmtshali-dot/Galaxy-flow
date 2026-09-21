@@ -21,27 +21,40 @@ let currentTheme = 'default';
 let soundEnabled = true;
 let vibrationEnabled = true;
 
-// --- SOUND ENGINE ---
+// --- SOUND ENGINE (Mobile Friendly) ---
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log("Audio not supported");
+        }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
     }
 }
+
 function playTone(freq, duration, type = 'sine') {
     if (!soundEnabled) return;
-    initAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    try {
+        initAudio();
+        if (!audioCtx) return;
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+        console.log("Sound error:", e);
+    }
 }
 
 // PWA Setup
@@ -200,7 +213,7 @@ function render() {
 
 function handleTubeClick(index) {
     if (vibrationEnabled && navigator.vibrate) navigator.vibrate(20);
-    playTone(400, 0.1, 'triangle'); // Click sound
+    playTone(400, 0.1, 'triangle'); 
 
     if (selectedTubeIndex === null) {
         if (tubes[index].length > 0) {
@@ -234,7 +247,7 @@ function handleTubeClick(index) {
                 ballObj.revealed = true; 
                 toTube.push(ballObj);
             }
-            playTone(600, 0.1, 'sine'); // Move sound
+            playTone(600, 0.1, 'sine'); 
         }
 
         selectedTubeIndex = null;
@@ -266,7 +279,7 @@ function undoMove() {
     updateControlUI();
     selectedTubeIndex = null;
     render();
-    playTone(300, 0.15, 'sawtooth'); // Undo sound
+    playTone(300, 0.15, 'sawtooth'); 
 }
 
 function addTube() {
@@ -281,7 +294,7 @@ function addTube() {
     extraTubesRemaining--;
     updateControlUI();
     render();
-    playTone(500, 0.15, 'square'); // Add tube sound
+    playTone(500, 0.15, 'square'); 
 }
 
 function checkWinCondition() {
@@ -314,20 +327,18 @@ function closeMenu() {
     document.getElementById('menu-screen').style.display = 'none';
 }
 
-// --- FIXED TAB SWITCHER ---
+// --- ABSOLUTELY BULLETPROOF TAB SWITCHER ---
 function switchTab(tabId, btn) {
-    // 1. Remove active class from all tabs
+    // 1. Remove active class from all tab buttons
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     
-    // 2. Hide all panes using inline styles (guaranteed to work)
-    const panes = ['levels', 'themes', 'balls', 'shapes'];
-    panes.forEach(id => {
-        const el = document.getElementById(id + '-grid');
-        if (el) el.style.display = 'none';
+    // 2. Hide ALL panes using inline styles (cannot be overridden by CSS)
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.style.display = 'none';
     });
     
-    // 3. Show the target pane
+    // 3. Show the target pane using inline styles
     const target = document.getElementById(tabId + '-grid');
     if (target) {
         target.style.display = 'grid';
@@ -364,7 +375,10 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     document.getElementById('toggle-sound').innerText = soundEnabled ? 'ON' : 'OFF';
     saveProgress();
-    if (soundEnabled) playTone(600, 0.1); // Play confirmation sound
+    if (soundEnabled) {
+        playTone(600, 0.1);
+        playTone(800, 0.1);
+    }
 }
 
 function toggleVibration() {
@@ -407,7 +421,7 @@ function buyTheme(theme, price) {
         applyTheme();
         updateControlUI();
         saveProgress();
-        playTone(700, 0.2); // Purchase sound
+        playTone(700, 0.2); 
         alert("Theme unlocked and equipped!");
     } else {
         alert("Not enough coins! Watch more ads.");
