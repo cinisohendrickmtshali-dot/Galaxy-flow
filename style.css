@@ -53,7 +53,6 @@ body {
     align-items: center;
 }
 
-/* --- THE LAYOUT FIX --- */
 #game-container {
     display: flex;
     flex-wrap: wrap;
@@ -62,7 +61,7 @@ body {
     align-items: flex-end;
     gap: 10px;
     width: 100%;
-    max-width: 280px; /* Forces exactly 5 tubes per row */
+    max-width: 280px; 
     flex-grow: 1;
     padding: 10px 0;
     overflow-y: auto;
@@ -91,6 +90,7 @@ body {
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 0 #3a3a6a;
+    transition: all 0.1s ease;
 }
 
 #controls button:active {
@@ -123,7 +123,7 @@ body {
     padding-bottom: 4px;
     cursor: pointer;
     background-color: rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s;
+    transition: all 0.2s ease-in-out; /* SMOOTHER TUBE */
 }
 
 .tube:active {
@@ -142,11 +142,11 @@ body {
     font-weight: bold;
     font-size: 18px;
     color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease-in-out; /* SMOOTHER BALL */
 }
 
-/* --- NEW: HIDDEN BALL STYLING --- */
 .hidden-ball {
-    background-color: #2a2a4a !important; /* Overrides color */
+    background-color: #2a2a4a !important; 
     box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8);
     border: 1px solid #4a4a6a;
 }
@@ -188,6 +188,7 @@ body {
     color: #1a1a2e;
     cursor: pointer;
     box-shadow: 0 5px 0 #008800;
+    transition: all 0.1s ease;
 }
 
 #win-screen button:active {
@@ -251,6 +252,7 @@ body {
     cursor: pointer;
     padding: 8px 12px;
     border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
 .tab.active {
@@ -277,6 +279,11 @@ body {
     cursor: pointer;
     position: relative;
     border: 2px solid #444;
+    transition: all 0.2s ease;
+}
+
+.level-card:active {
+    transform: scale(0.95);
 }
 
 .level-card.locked {
@@ -313,4 +320,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: all 0.1s ease;
+}
+
+#ad-reward-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
 }
