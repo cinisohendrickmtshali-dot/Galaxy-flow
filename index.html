@@ -52,24 +52,39 @@
 
         <div id="tab-content">
             <!-- Levels Grid -->
-            <div id="level-grid" class="tab-pane active"></div>
+            <div id="levels-grid" class="tab-pane active"></div>
             
             <!-- Themes Grid -->
             <div id="themes-grid" class="tab-pane">
-                <div class="shop-item" data-theme="default">
+                <div class="shop-item">
                     <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
                     <p>Space (Default)</p>
                     <button class="buy-btn owned">Owned</button>
                 </div>
-                <div class="shop-item" data-theme="forest">
+                <div class="shop-item">
                     <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%);"></div>
                     <p>Forest</p>
                     <button class="buy-btn" onclick="buyTheme('forest', 500)">500 🪙</button>
                 </div>
-                <div class="shop-item" data-theme="desert">
+                <div class="shop-item">
                     <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%);"></div>
                     <p>Desert</p>
                     <button class="buy-btn" onclick="buyTheme('desert', 500)">500 🪙</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-preview" style="background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);"></div>
+                    <p>Neon City</p>
+                    <button class="buy-btn" onclick="buyTheme('neon', 1000)">1000 🪙</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-preview" style="background: linear-gradient(to top, #0f2027, #203a43, #2c5364);"></div>
+                    <p>Deep Ocean</p>
+                    <button class="buy-btn" onclick="watchAdForTheme('ocean')">📺 Watch Ad</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-preview" style="background: linear-gradient(to top, #ff7e5f, #feb47b);"></div>
+                    <p>Sunset</p>
+                    <button class="buy-btn" onclick="watchAdForTheme('sunset')">📺 Watch Ad</button>
                 </div>
             </div>
 
@@ -81,9 +96,9 @@
                     <button class="buy-btn owned">Owned</button>
                 </div>
                 <div class="shop-item">
-                    <div class="shop-preview ball-preview glow" style="background:#00ff00; box-shadow: 0 0 15px #00ff00;"></div>
+                    <div class="shop-preview ball-preview" style="background:#00ff00; box-shadow: 0 0 15px #00ff00;"></div>
                     <p>Neon Glow</p>
-                    <button class="buy-btn" onclick="buyAdItem('balls', 'glow')">📺 Free</button>
+                    <button class="buy-btn" onclick="watchAdForItem('balls', 'glow')">📺 Watch Ad</button>
                 </div>
             </div>
 
@@ -117,19 +132,15 @@
                 <span>Vibration</span>
                 <button id="toggle-vibe" class="toggle-btn" onclick="toggleVibration()">ON</button>
             </div>
-            <div class="setting-item">
-                <span>Restore Purchases</span>
-                <button class="toggle-btn">></button>
-            </div>
         </div>
     </div>
 
-    <!-- Out of Tools Modal (Watch Ads to continue) -->
+    <!-- Out of Tools Modal -->
     <div id="out-of-tools-modal">
         <div class="modal-content">
-            <h2>Out of Undos! 😢</h2>
-            <p>Watch a short ad to get +3 Undos?</p>
-            <button class="ad-btn" onclick="watchAdForUndos()">📺 Watch Ad</button>
+            <h2 id="modal-title">Out of Undos! 😢</h2>
+            <p id="modal-desc">Watch a short ad to get +3 Undos?</p>
+            <button class="ad-btn" onclick="watchAdForTool()">📺 Watch Ad</button>
             <button class="cancel-btn" onclick="closeOutOfTools()">Cancel</button>
         </div>
     </div>
