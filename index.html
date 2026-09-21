@@ -16,6 +16,15 @@
         <div id="game-container">
             <!-- Tubes will be generated here -->
         </div>
+
+        <div id="controls">
+            <button id="undo-btn" onclick="undoMove()">
+                ↶ <span class="badge" id="undo-count">5</span>
+            </button>
+            <button id="add-tube-btn" onclick="addTube()">
+                🧪 <span class="badge" id="add-tube-count">2</span>
+            </button>
+        </div>
     </div>
 
     <!-- The Win Screen (Hidden by default) -->
