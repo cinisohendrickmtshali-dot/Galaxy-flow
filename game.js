@@ -21,11 +21,10 @@ let currentTheme = 'default';
 let soundEnabled = true;
 let vibrationEnabled = true;
 
-// PWA Setup: Register the Service Worker for Offline Play
+// PWA Setup
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registered!', reg))
             .catch(err => console.log('Service Worker failed:', err));
     });
 }
@@ -222,6 +221,9 @@ function handleTubeClick(index) {
 function undoMove() {
     if (undosRemaining <= 0) {
         document.getElementById('out-of-tools-modal').style.display = 'flex';
+        document.getElementById('modal-title').innerText = "Out of Undos! 😢";
+        document.getElementById('modal-desc').innerText = "Watch a short ad to get +3 Undos?";
+        document.querySelector('.ad-btn').onclick = watchAdForUndos;
         return;
     }
     if (moveHistory.length === 0) return;
@@ -244,9 +246,9 @@ function undoMove() {
 function addTube() {
     if (extraTubesRemaining <= 0) {
         document.getElementById('out-of-tools-modal').style.display = 'flex';
-        // Change modal text to reflect Add Tube
-        document.querySelector('.modal-content h2').innerText = "Out of Tubes! 😢";
-        document.querySelector('.modal-content p').innerText = "Watch a short ad to get +1 Tube?";
+        document.getElementById('modal-title').innerText = "Out of Tubes! 😢";
+        document.getElementById('modal-desc').innerText = "Watch a short ad to get +1 Tube?";
+        document.querySelector('.ad-btn').onclick = watchAdForTubes;
         return;
     }
     tubes.push([]); 
@@ -291,7 +293,7 @@ function switchTab(tabId, btn) {
 }
 
 function renderMenuGrid() {
-    const grid = document.getElementById('level-grid');
+    const grid = document.getElementById('levels-grid');
     grid.innerHTML = '';
     for (let i = 1; i <= 30; i++) {
         const card = document.createElement('div');
@@ -336,8 +338,11 @@ function updateSettingsUI() {
 function applyTheme() {
     const root = document.documentElement;
     if (currentTheme === 'default') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%)');
-    if (currentTheme === 'forest') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%)');
-    if (currentTheme === 'desert') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%)');
+    else if (currentTheme === 'forest') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%)');
+    else if (currentTheme === 'desert') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%)');
+    else if (currentTheme === 'neon') root.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)');
+    else if (currentTheme === 'ocean') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #0f2027, #203a43, #2c5364)');
+    else if (currentTheme === 'sunset') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #ff7e5f, #feb47b)');
 }
 
 function buyTheme(theme, price) {
@@ -361,22 +366,31 @@ function buyTheme(theme, price) {
     }
 }
 
-function buyAdItem(type, item) {
+function watchAdForTheme(theme) {
     showFakeAd(5, 'Reward', () => {
-        alert("Item unlocked!");
-        // In a real game, you would track ownership of balls/shapes here
+        if (!ownedThemes.includes(theme)) {
+            ownedThemes.push(theme);
+        }
+        currentTheme = theme;
+        applyTheme();
+        saveProgress();
+        alert("Amazing! You unlocked the " + theme.toUpperCase() + " theme!");
+    });
+}
+
+function watchAdForItem(type, item) {
+    showFakeAd(5, 'Reward', () => {
+        alert("You unlocked the " + item + " " + type + "!");
+        // Logic to apply the item would go here
     });
 }
 
 // --- AD FUNCTIONS ---
-let adCallback = null;
-
 function showFakeAd(duration, type, callback) {
     const overlay = document.getElementById('ad-overlay');
     const timerDisplay = document.getElementById('ad-timer');
     const closeBtn = document.getElementById('ad-close-btn');
     
-    adCallback = callback;
     overlay.style.display = 'flex';
     let timeLeft = duration;
     timerDisplay.innerText = timeLeft;
@@ -398,7 +412,7 @@ function showFakeAd(duration, type, callback) {
     closeBtn.onclick = () => {
         if (!closeBtn.disabled) {
             overlay.style.display = 'none';
-            if (adCallback) adCallback();
+            if (callback) callback();
         }
     };
 }
@@ -429,9 +443,6 @@ function watchAdForTubes() {
 
 function closeOutOfTools() {
     document.getElementById('out-of-tools-modal').style.display = 'none';
-    // Reset modal text for next time
-    document.querySelector('.modal-content h2').innerText = "Out of Undos! 😢";
-    document.querySelector('.modal-content p').innerText = "Watch a short ad to get +3 Undos?";
 }
 
 // Initialize game
