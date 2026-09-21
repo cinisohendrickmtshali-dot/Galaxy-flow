@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Flow</title>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a2e">
 </head>
@@ -28,14 +28,12 @@
         </div>
     </div>
 
-    <!-- The Win Screen -->
     <div id="win-screen">
         <h1>AWESOME</h1>
         <p>Level Complete!</p>
         <button onclick="nextLevel()">Next</button>
     </div>
 
-    <!-- The Menu / Level Select Screen -->
     <div id="menu-screen">
         <div id="menu-header">
             <div id="coin-display">🪙 <span id="coin-count">0</span></div>
@@ -48,10 +46,8 @@
             <button id="tab-themes" class="tab" onclick="showThemes()">🖼️ Themes</button>
         </div>
 
-        <!-- LEVELS CONTAINER -->
         <div id="levels-grid" style="display: grid;"></div>
 
-        <!-- THEMES CONTAINER -->
         <div id="themes-grid" style="display: none;">
             <div class="shop-item">
                 <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
@@ -90,7 +86,6 @@
         </div>
     </div>
 
-    <!-- Settings Screen -->
     <div id="settings-screen">
         <div id="settings-header">
             <h2>Settings</h2>
@@ -108,7 +103,6 @@
         </div>
     </div>
 
-    <!-- Out of Tools Modal -->
     <div id="out-of-tools-modal">
         <div class="modal-content">
             <h2 id="modal-title">Out of Undos! 😢</h2>
@@ -118,7 +112,6 @@
         </div>
     </div>
 
-    <!-- Fake Ad Overlay -->
     <div id="ad-overlay">
         <div class="ad-content">
             <h2>Advertisement</h2>
@@ -131,6 +124,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=8"></script>
+    <script src="game.js?v=9"></script>
 </body>
 </html>
