@@ -1,3 +1,4 @@
+// Define all your levels here. 
 const LEVELS = [
     // Level 1
     [
@@ -22,8 +23,7 @@ const LEVELS = [
         [],
         []
     ],
-    // Levels 4 to 20 will just be copies of Level 3 for now (placeholder)
-    // We will add actual level data later
+    // Levels 4 to 20 (Placeholder copies of Level 3 for now)
     ...Array(17).fill([
         ['#FF0000', '#0000FF', '#00FF00', '#FFFF00'],
         ['#FFFF00', '#00FF00', '#0000FF', '#FF0000'],
@@ -40,11 +40,10 @@ let moveHistory = [];
 let undosRemaining = 5;
 let extraTubesRemaining = 2;
 
-// --- NEW SAVE DATA ---
-let maxUnlockedLevel = 1; // Player starts at level 1
+// Save Data
+let maxUnlockedLevel = 1; 
 let coins = 0;
 
-// Load save data when the game starts
 function loadSaveData() {
     const savedLevel = localStorage.getItem('galaxy_flow_max_level');
     const savedCoins = localStorage.getItem('galaxy_flow_coins');
@@ -55,21 +54,18 @@ function loadSaveData() {
     document.getElementById('coin-count').innerText = coins;
 }
 
-// Save data when the player wins
 function saveProgress() {
     localStorage.setItem('galaxy_flow_max_level', maxUnlockedLevel);
     localStorage.setItem('galaxy_flow_coins', coins);
 }
 
 function loadLevel(levelIndex) {
-    // Safety check: don't load a level they haven't unlocked
     if (levelIndex >= maxUnlockedLevel && levelIndex > 0) {
         alert("You need to finish the previous level first!");
         return;
     }
 
     currentLevelIndex = levelIndex;
-    // Make sure we don't go out of bounds
     const levelData = LEVELS[levelIndex] || LEVELS[0]; 
     
     tubes = JSON.parse(JSON.stringify(levelData));
@@ -93,7 +89,6 @@ function restartLevel() {
 
 function nextLevel() {
     if (currentLevelIndex + 1 < LEVELS.length) {
-        // Unlock the next level
         if (currentLevelIndex + 2 > maxUnlockedLevel) {
             maxUnlockedLevel = currentLevelIndex + 2;
             saveProgress();
@@ -196,26 +191,25 @@ function addTube() {
     render();
 }
 
+// THE FIXED WIN CONDITION
 function checkWinCondition() {
     for (let i = 0; i < tubes.length; i++) {
         const tube = tubes[i];
-        if (tube.length === 0) continue; 
-        if (tube.length !== 4) return; 
+        if (tube.length === 0) continue; // Empty tubes are fine
         
+        // Check if all balls in this tube are the same color
         const firstColor = tube[0];
         for (let j = 1; j < tube.length; j++) {
-            if (tube[j] !== firstColor) return; 
+            if (tube[j] !== firstColor) return; // Mixed colors, not won yet
         }
     }
     
-    // Award coins
+    // If we get here, all non-empty tubes have only one color!
     coins += 10;
     saveProgress(); // Save the new coin balance
     
     document.getElementById('win-screen').style.display = 'flex';
 }
-
-// --- NEW MENU FUNCTIONS ---
 
 function openMenu() {
     renderMenuGrid();
@@ -230,7 +224,6 @@ function renderMenuGrid() {
     const grid = document.getElementById('level-grid');
     grid.innerHTML = '';
 
-    // Show 20 levels in the grid
     for (let i = 1; i <= 20; i++) {
         const card = document.createElement('div');
         const isUnlocked = i <= maxUnlockedLevel;
@@ -239,7 +232,7 @@ function renderMenuGrid() {
         
         if (isUnlocked) {
             card.innerHTML = `<div class="level-number">Level ${i}</div>`;
-            card.onclick = () => loadLevel(i - 1); // Load the level
+            card.onclick = () => loadLevel(i - 1);
         } else {
             card.innerHTML = `<div class="lock-icon">🔒</div><div class="level-number">Level ${i}</div>`;
         }
@@ -250,4 +243,4 @@ function renderMenuGrid() {
 
 // Initialize game
 loadSaveData();
-loadLevel(0); // Always start at level 1 when opening the game
+loadLevel(0);
