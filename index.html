@@ -51,7 +51,21 @@
         <div id="level-grid"></div>
 
         <div id="menu-footer">
-            <button id="ad-reward-btn">📺 🪙 +150</button>
+            <!-- Added onclick here -->
+            <button id="ad-reward-btn" onclick="watchAdForCoins()">📺 🪙 +150</button>
+        </div>
+    </div>
+
+    <!-- --- NEW: FAKE AD OVERLAY --- -->
+    <div id="ad-overlay">
+        <div class="ad-content">
+            <h2>Advertisement</h2>
+            <div class="ad-video-placeholder">
+                <div class="spinner"></div>
+                <p>Playing Ad...</p>
+            </div>
+            <div id="ad-timer">5</div>
+            <button id="ad-close-btn" disabled>Skip</button>
         </div>
     </div>
 
