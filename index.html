@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Flow</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a2e">
 </head>
@@ -43,82 +43,41 @@
             <button id="close-menu-btn" onclick="closeMenu()">✕</button>
         </div>
         
+        <!-- ONLY 2 TABS NOW -->
         <div id="menu-tabs">
-            <button class="tab active" onclick="switchTab('levels', this)">🎯 Levels</button>
-            <button class="tab" onclick="switchTab('themes', this)">🖼️ Themes</button>
-            <button class="tab" onclick="switchTab('balls', this)">⚪ Balls</button>
-            <button class="tab" onclick="switchTab('shapes', this)">⬜ Shapes</button>
+            <button id="tab-levels" class="tab active" onclick="showLevels()">🎯 Levels</button>
+            <button id="tab-themes" class="tab" onclick="showThemes()">🖼️ Themes</button>
         </div>
 
-        <div id="tab-content">
-            <!-- Levels Grid -->
-            <div id="levels-grid" class="tab-pane active" style="display: grid;"></div>
-            
-            <!-- Themes Grid -->
-            <div id="themes-grid" class="tab-pane" style="display: none;">
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
-                    <p>Space (Default)</p>
-                    <button class="buy-btn owned">Owned</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%);"></div>
-                    <p>Forest</p>
-                    <button class="buy-btn" onclick="buyTheme('forest', 500)">500 🪙</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%);"></div>
-                    <p>Desert</p>
-                    <button class="buy-btn" onclick="buyTheme('desert', 500)">500 🪙</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);"></div>
-                    <p>Neon City</p>
-                    <button class="buy-btn" onclick="buyTheme('neon', 1000)">1000 🪙</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: linear-gradient(to top, #0f2027, #203a43, #2c5364);"></div>
-                    <p>Deep Ocean</p>
-                    <button class="buy-btn" onclick="watchAdForTheme('ocean')">📺 Watch Ad</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: linear-gradient(to top, #ff7e5f, #feb47b);"></div>
-                    <p>Sunset</p>
-                    <button class="buy-btn" onclick="watchAdForTheme('sunset')">📺 Watch Ad</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%);"></div>
-                    <p>Lava</p>
-                    <button class="buy-btn" onclick="watchAdForTheme('lava')">📺 Watch Ad</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview" style="background: radial-gradient(circle at 50% 50%, #00ffff 0%, #001a33 100%);"></div>
-                    <p>Ice</p>
-                    <button class="buy-btn" onclick="watchAdForTheme('ice')">📺 Watch Ad</button>
-                </div>
-            </div>
+        <!-- LEVELS CONTAINER -->
+        <div id="levels-grid" style="display: grid;"></div>
 
-            <!-- Balls Grid -->
-            <div id="balls-grid" class="tab-pane" style="display: none;">
-                <div class="shop-item">
-                    <div class="shop-preview ball-preview classic"></div>
-                    <p>Classic</p>
-                    <button class="buy-btn owned">Owned</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-preview ball-preview" style="background:#00ff00; box-shadow: 0 0 15px #00ff00;"></div>
-                    <p>Neon Glow</p>
-                    <button class="buy-btn" onclick="watchAdForItem('balls', 'glow')">📺 Watch Ad</button>
-                </div>
+        <!-- THEMES CONTAINER -->
+        <div id="themes-grid" style="display: none;">
+            <div class="shop-item">
+                <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
+                <p>Space</p>
+                <button class="buy-btn owned">Owned</button>
             </div>
-
-            <!-- Shapes Grid -->
-            <div id="shapes-grid" class="tab-pane" style="display: none;">
-                <div class="shop-item">
-                    <div class="shop-preview shape-preview" style="border-radius: 0 0 22px 22px;"></div>
-                    <p>Test Tube</p>
-                    <button class="buy-btn owned">Owned</button>
-                </div>
+            <div class="shop-item">
+                <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%);"></div>
+                <p>Forest</p>
+                <button class="buy-btn" onclick="buyTheme('forest', 500)">500 🪙</button>
+            </div>
+            <div class="shop-item">
+                <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%);"></div>
+                <p>Desert</p>
+                <button class="buy-btn" onclick="buyTheme('desert', 500)">500 🪙</button>
+            </div>
+            <div class="shop-item">
+                <div class="shop-preview" style="background: linear-gradient(to top, #ff7e5f, #feb47b);"></div>
+                <p>Sunset</p>
+                <button class="buy-btn" onclick="watchAdForTheme('sunset')">📺 Watch Ad</button>
+            </div>
+            <div class="shop-item">
+                <div class="shop-preview" style="background: radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%);"></div>
+                <p>Lava</p>
+                <button class="buy-btn" onclick="watchAdForTheme('lava')">📺 Watch Ad</button>
             </div>
         </div>
 
@@ -139,10 +98,6 @@
                 <button id="toggle-sound" class="toggle-btn" onclick="toggleSound()">ON</button>
             </div>
             <div class="setting-item">
-                <span>Vibration</span>
-                <button id="toggle-vibe" class="toggle-btn" onclick="toggleVibration()">ON</button>
-            </div>
-            <div class="setting-item">
                 <span>Test Sound</span>
                 <button class="toggle-btn" onclick="playTone(600, 0.2)">🔊 Play</button>
             </div>
@@ -154,7 +109,7 @@
         <div class="modal-content">
             <h2 id="modal-title">Out of Undos! 😢</h2>
             <p id="modal-desc">Watch a short ad to get +3 Undos?</p>
-            <button class="ad-btn" onclick="watchAdForTool()">📺 Watch Ad</button>
+            <button class="ad-btn" onclick="watchAdForUndos()">📺 Watch Ad</button>
             <button class="cancel-btn" onclick="closeOutOfTools()">Cancel</button>
         </div>
     </div>
@@ -172,6 +127,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=3"></script>
+    <script src="game.js?v=4"></script>
 </body>
 </html>
