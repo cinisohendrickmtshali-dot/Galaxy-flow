@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galaxy Flow</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=6">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a2e">
 </head>
@@ -43,7 +43,6 @@
             <button id="close-menu-btn" onclick="closeMenu()">✕</button>
         </div>
         
-        <!-- ONLY 2 TABS NOW -->
         <div id="menu-tabs">
             <button id="tab-levels" class="tab active" onclick="showLevels()">🎯 Levels</button>
             <button id="tab-themes" class="tab" onclick="showThemes()">🖼️ Themes</button>
@@ -57,27 +56,32 @@
             <div class="shop-item">
                 <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);"></div>
                 <p>Space</p>
-                <button class="buy-btn owned">Owned</button>
+                <button id="btn-default" class="buy-btn">Equipped</button>
             </div>
             <div class="shop-item">
                 <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%);"></div>
                 <p>Forest</p>
-                <button class="buy-btn" onclick="buyTheme('forest', 500)">500 🪙</button>
+                <button id="btn-forest" class="buy-btn">Level 10 🔒</button>
             </div>
             <div class="shop-item">
                 <div class="shop-preview" style="background: radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%);"></div>
                 <p>Desert</p>
-                <button class="buy-btn" onclick="buyTheme('desert', 500)">500 🪙</button>
+                <button id="btn-desert" class="buy-btn">Level 20 🔒</button>
             </div>
             <div class="shop-item">
                 <div class="shop-preview" style="background: linear-gradient(to top, #ff7e5f, #feb47b);"></div>
                 <p>Sunset</p>
-                <button class="buy-btn" onclick="watchAdForTheme('sunset')">📺 Watch Ad</button>
+                <button id="btn-sunset" class="buy-btn">Level 30 🔒</button>
             </div>
             <div class="shop-item">
                 <div class="shop-preview" style="background: radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%);"></div>
                 <p>Lava</p>
-                <button class="buy-btn" onclick="watchAdForTheme('lava')">📺 Watch Ad</button>
+                <button id="btn-lava" class="buy-btn">Level 40 🔒</button>
+            </div>
+            <div class="shop-item">
+                <div class="shop-preview" style="background: radial-gradient(circle at 50% 50%, #00ffff 0%, #001a33 100%);"></div>
+                <p>Ice</p>
+                <button id="btn-ice" class="buy-btn">Level 50 🔒</button>
             </div>
         </div>
 
@@ -127,6 +131,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=4"></script>
+    <script src="game.js?v=6"></script>
 </body>
 </html>
