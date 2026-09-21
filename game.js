@@ -378,7 +378,8 @@ function showThemes() {
 function renderMenuGrid() {
     const grid = document.getElementById('levels-grid');
     grid.innerHTML = '';
-    for (let i = 1; i <= 30; i++) {
+    // FIXED: Extended from 30 to 100 levels
+    for (let i = 1; i <= 100; i++) {
         const card = document.createElement('div');
         const isUnlocked = i <= maxUnlockedLevel;
         card.className = `level-card ${isUnlocked ? '' : 'locked'}`;
