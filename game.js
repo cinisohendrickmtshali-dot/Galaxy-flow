@@ -21,6 +21,29 @@ let currentTheme = 'default';
 let soundEnabled = true;
 let vibrationEnabled = true;
 
+// --- SOUND ENGINE ---
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+function playTone(freq, duration, type = 'sine') {
+    if (!soundEnabled) return;
+    initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
 // PWA Setup
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -177,6 +200,7 @@ function render() {
 
 function handleTubeClick(index) {
     if (vibrationEnabled && navigator.vibrate) navigator.vibrate(20);
+    playTone(400, 0.1, 'triangle'); // Click sound
 
     if (selectedTubeIndex === null) {
         if (tubes[index].length > 0) {
@@ -210,6 +234,7 @@ function handleTubeClick(index) {
                 ballObj.revealed = true; 
                 toTube.push(ballObj);
             }
+            playTone(600, 0.1, 'sine'); // Move sound
         }
 
         selectedTubeIndex = null;
@@ -241,6 +266,7 @@ function undoMove() {
     updateControlUI();
     selectedTubeIndex = null;
     render();
+    playTone(300, 0.15, 'sawtooth'); // Undo sound
 }
 
 function addTube() {
@@ -255,6 +281,7 @@ function addTube() {
     extraTubesRemaining--;
     updateControlUI();
     render();
+    playTone(500, 0.15, 'square'); // Add tube sound
 }
 
 function checkWinCondition() {
@@ -272,6 +299,9 @@ function checkWinCondition() {
     coins += 10;
     saveProgress(); 
     document.getElementById('win-screen').style.display = 'flex';
+    playTone(800, 0.1, 'sine');
+    setTimeout(() => playTone(1000, 0.2, 'sine'), 100);
+    setTimeout(() => playTone(1200, 0.3, 'sine'), 200);
 }
 
 // --- MENU & SETTINGS ---
@@ -284,12 +314,25 @@ function closeMenu() {
     document.getElementById('menu-screen').style.display = 'none';
 }
 
+// --- FIXED TAB SWITCHER ---
 function switchTab(tabId, btn) {
+    // 1. Remove active class from all tabs
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById(tabId + '-grid').classList.add('active');
-    document.getElementById('menu-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+    
+    // 2. Hide all panes using inline styles (guaranteed to work)
+    const panes = ['levels', 'themes', 'balls', 'shapes'];
+    panes.forEach(id => {
+        const el = document.getElementById(id + '-grid');
+        if (el) el.style.display = 'none';
+    });
+    
+    // 3. Show the target pane
+    const target = document.getElementById(tabId + '-grid');
+    if (target) {
+        target.style.display = 'grid';
+        document.getElementById('menu-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+    }
 }
 
 function renderMenuGrid() {
@@ -321,12 +364,14 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     document.getElementById('toggle-sound').innerText = soundEnabled ? 'ON' : 'OFF';
     saveProgress();
+    if (soundEnabled) playTone(600, 0.1); // Play confirmation sound
 }
 
 function toggleVibration() {
     vibrationEnabled = !vibrationEnabled;
     document.getElementById('toggle-vibe').innerText = vibrationEnabled ? 'ON' : 'OFF';
     saveProgress();
+    if (vibrationEnabled && navigator.vibrate) navigator.vibrate(20);
 }
 
 function updateSettingsUI() {
@@ -343,6 +388,8 @@ function applyTheme() {
     else if (currentTheme === 'neon') root.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)');
     else if (currentTheme === 'ocean') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #0f2027, #203a43, #2c5364)');
     else if (currentTheme === 'sunset') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #ff7e5f, #feb47b)');
+    else if (currentTheme === 'lava') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%)');
+    else if (currentTheme === 'ice') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #00ffff 0%, #001a33 100%)');
 }
 
 function buyTheme(theme, price) {
@@ -360,6 +407,7 @@ function buyTheme(theme, price) {
         applyTheme();
         updateControlUI();
         saveProgress();
+        playTone(700, 0.2); // Purchase sound
         alert("Theme unlocked and equipped!");
     } else {
         alert("Not enough coins! Watch more ads.");
@@ -374,14 +422,15 @@ function watchAdForTheme(theme) {
         currentTheme = theme;
         applyTheme();
         saveProgress();
+        playTone(700, 0.2);
         alert("Amazing! You unlocked the " + theme.toUpperCase() + " theme!");
     });
 }
 
 function watchAdForItem(type, item) {
     showFakeAd(5, 'Reward', () => {
+        playTone(700, 0.2);
         alert("You unlocked the " + item + " " + type + "!");
-        // Logic to apply the item would go here
     });
 }
 
@@ -422,6 +471,7 @@ function watchAdForCoins() {
         coins += 150;
         saveProgress();
         updateControlUI();
+        playTone(800, 0.2);
     });
 }
 
@@ -430,6 +480,7 @@ function watchAdForUndos() {
     showFakeAd(5, 'Reward', () => {
         undosRemaining += 3;
         updateControlUI();
+        playTone(800, 0.2);
     });
 }
 
@@ -438,6 +489,7 @@ function watchAdForTubes() {
     showFakeAd(5, 'Reward', () => {
         extraTubesRemaining += 1;
         updateControlUI();
+        playTone(800, 0.2);
     });
 }
 
