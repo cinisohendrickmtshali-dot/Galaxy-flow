@@ -36,6 +36,11 @@ function initAudio() {
     }
 }
 
+// Unlock AudioContext on the very first user interaction (required by mobile browsers)
+document.body.addEventListener('click', () => {
+    initAudio();
+}, { once: true });
+
 function playTone(freq, duration, type = 'sine') {
     if (!soundEnabled) return;
     try {
@@ -321,29 +326,28 @@ function checkWinCondition() {
 function openMenu() {
     renderMenuGrid();
     document.getElementById('menu-screen').style.display = 'flex';
+    showLevels(); // Default to Levels tab
 }
 
 function closeMenu() {
     document.getElementById('menu-screen').style.display = 'none';
 }
 
-// --- ABSOLUTELY BULLETPROOF TAB SWITCHER ---
-function switchTab(tabId, btn) {
-    // 1. Remove active class from all tab buttons
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    
-    // 2. Hide ALL panes using inline styles (cannot be overridden by CSS)
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.style.display = 'none';
-    });
-    
-    // 3. Show the target pane using inline styles
-    const target = document.getElementById(tabId + '-grid');
-    if (target) {
-        target.style.display = 'grid';
-        document.getElementById('menu-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1);
-    }
+// --- SIMPLEST POSSIBLE TAB SWITCHER ---
+function showLevels() {
+    document.getElementById('levels-grid').style.display = 'grid';
+    document.getElementById('themes-grid').style.display = 'none';
+    document.getElementById('menu-title').innerText = 'Levels';
+    document.getElementById('tab-levels').classList.add('active');
+    document.getElementById('tab-themes').classList.remove('active');
+}
+
+function showThemes() {
+    document.getElementById('levels-grid').style.display = 'none';
+    document.getElementById('themes-grid').style.display = 'grid';
+    document.getElementById('menu-title').innerText = 'Themes';
+    document.getElementById('tab-themes').classList.add('active');
+    document.getElementById('tab-levels').classList.remove('active');
 }
 
 function renderMenuGrid() {
@@ -381,16 +385,8 @@ function toggleSound() {
     }
 }
 
-function toggleVibration() {
-    vibrationEnabled = !vibrationEnabled;
-    document.getElementById('toggle-vibe').innerText = vibrationEnabled ? 'ON' : 'OFF';
-    saveProgress();
-    if (vibrationEnabled && navigator.vibrate) navigator.vibrate(20);
-}
-
 function updateSettingsUI() {
     document.getElementById('toggle-sound').innerText = soundEnabled ? 'ON' : 'OFF';
-    document.getElementById('toggle-vibe').innerText = vibrationEnabled ? 'ON' : 'OFF';
 }
 
 // --- SHOP LOGIC ---
@@ -399,11 +395,8 @@ function applyTheme() {
     if (currentTheme === 'default') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%)');
     else if (currentTheme === 'forest') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #2a5a2a 0%, #1a2e1a 80%)');
     else if (currentTheme === 'desert') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 30%, #5a4a2a 0%, #2e1a1a 80%)');
-    else if (currentTheme === 'neon') root.style.setProperty('--bg-gradient', 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)');
-    else if (currentTheme === 'ocean') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #0f2027, #203a43, #2c5364)');
     else if (currentTheme === 'sunset') root.style.setProperty('--bg-gradient', 'linear-gradient(to top, #ff7e5f, #feb47b)');
     else if (currentTheme === 'lava') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #ff0000 0%, #330000 100%)');
-    else if (currentTheme === 'ice') root.style.setProperty('--bg-gradient', 'radial-gradient(circle at 50% 50%, #00ffff 0%, #001a33 100%)');
 }
 
 function buyTheme(theme, price) {
@@ -438,13 +431,6 @@ function watchAdForTheme(theme) {
         saveProgress();
         playTone(700, 0.2);
         alert("Amazing! You unlocked the " + theme.toUpperCase() + " theme!");
-    });
-}
-
-function watchAdForItem(type, item) {
-    showFakeAd(5, 'Reward', () => {
-        playTone(700, 0.2);
-        alert("You unlocked the " + item + " " + type + "!");
     });
 }
 
