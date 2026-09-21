@@ -265,22 +265,21 @@ body {
     color: white;
 }
 
+/* --- TAB FIX --- */
 .tab-pane {
     display: none;
+    width: 100%;
     flex-grow: 1;
     overflow-y: auto;
 }
 
 .tab-pane.active {
-    display: block;
-}
-
-#level-grid, #themes-grid, #balls-grid, #shapes-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 15px;
     justify-content: center;
+    align-content: start;
 }
 
 .level-card, .shop-item {
@@ -349,6 +348,7 @@ body {
     background-color: #00CC00;
     color: white;
     box-shadow: 0 3px 0 #008800;
+    margin-top: auto;
 }
 
 .buy-btn.owned {
