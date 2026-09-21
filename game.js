@@ -23,8 +23,8 @@ let extraTubesRemaining = 2;
 // Save Data
 let maxUnlockedLevel = 1; 
 let coins = 0;
+let levelsPlayed = 0; // For Interstitial Ad tracking
 
-// --- LEVEL GENERATOR ---
 function generateLevel(levelNum) {
     let numColors = Math.min(2 + Math.floor(levelNum / 1.5), 10); 
     let numBalls = 4; 
@@ -32,12 +32,10 @@ function generateLevel(levelNum) {
     let balls = [];
     for (let i = 0; i < numColors; i++) {
         for (let j = 0; j < numBalls; j++) {
-            // Store as objects now to track 'revealed' state
             balls.push({ color: COLORS[i % COLORS.length], revealed: false });
         }
     }
     
-    // Shuffle
     for (let i = balls.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [balls[i], balls[j]] = [balls[j], balls[i]];
@@ -82,11 +80,10 @@ function loadLevel(levelIndex) {
     currentLevelIndex = levelIndex;
     tubes = generateLevel(levelIndex + 1);
     
-    // --- FIX: DISABLE HIDDEN BALLS FOR LEVELS 1 TO 9 ---
     if (levelIndex < 9) {
         tubes.forEach(tube => {
             tube.forEach(ball => {
-                ball.revealed = true; // Force reveal for easy levels
+                ball.revealed = true; 
             });
         });
     }
@@ -114,7 +111,17 @@ function nextLevel() {
             maxUnlockedLevel = currentLevelIndex + 2;
             saveProgress();
         }
-        loadLevel(currentLevelIndex + 1);
+        
+        // --- INTERSTITIAL AD LOGIC ---
+        levelsPlayed++;
+        if (levelsPlayed % 3 === 0) {
+            // Every 3 levels, show a fake interstitial ad before loading next level
+            showInterstitialAd(() => {
+                loadLevel(currentLevelIndex + 1);
+            });
+        } else {
+            loadLevel(currentLevelIndex + 1);
+        }
     } else {
         alert("You finished all 100 levels! You are a Ball Sort Master!");
     }
@@ -126,7 +133,6 @@ function updateControlUI() {
     document.getElementById('coin-count').innerText = coins;
 }
 
-// --- RENDER FUNCTION ---
 function render() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
@@ -146,7 +152,6 @@ function render() {
             const ballDiv = document.createElement('div');
             ballDiv.className = 'ball';
             
-            // LOGIC FIX: Reveal the top ball permanently
             if (ballIndex === tube.length - 1) {
                 ballObj.revealed = true;
             }
@@ -181,7 +186,6 @@ function handleTubeClick(index) {
             return;
         }
 
-        // Multi-ball movement logic (now accessing .color)
         const topBall = fromTube[fromTube.length - 1];
         const topColor = topBall.color;
         let count = 0;
@@ -208,7 +212,7 @@ function handleTubeClick(index) {
 
             for (let i = 0; i < toMove; i++) {
                 let ballObj = fromTube.pop();
-                ballObj.revealed = true; // Reveal it permanently once moved
+                ballObj.revealed = true; 
                 toTube.push(ballObj);
             }
         }
@@ -245,14 +249,13 @@ function addTube() {
     render();
 }
 
-// --- WIN CONDITION ---
 function checkWinCondition() {
     for (let i = 0; i < tubes.length; i++) {
         const tube = tubes[i];
         if (tube.length === 0) continue; 
         if (tube.length !== 4) return; 
         
-        const firstColor = tube[0].color; // Access color property
+        const firstColor = tube[0].color; 
         for (let j = 1; j < tube.length; j++) {
             if (tube[j].color !== firstColor) return; 
         }
@@ -291,6 +294,54 @@ function renderMenuGrid() {
         
         grid.appendChild(card);
     }
+}
+
+// --- NEW: AD FUNCTIONS ---
+function showFakeAd(duration, callback) {
+    const overlay = document.getElementById('ad-overlay');
+    const timerDisplay = document.getElementById('ad-timer');
+    const closeBtn = document.getElementById('ad-close-btn');
+    
+    overlay.style.display = 'flex';
+    let timeLeft = duration;
+    timerDisplay.innerText = timeLeft;
+    closeBtn.disabled = true;
+    closeBtn.innerText = `Skip in ${timeLeft}s`;
+    
+    const adTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = timeLeft;
+        closeBtn.innerText = `Skip in ${timeLeft}s`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(adTimer);
+            closeBtn.disabled = false;
+            closeBtn.innerText = 'Claim Reward';
+        }
+    }, 1000);
+    
+    closeBtn.onclick = () => {
+        if (!closeBtn.disabled) {
+            overlay.style.display = 'none';
+            if (callback) callback();
+        }
+    };
+}
+
+function watchAdForCoins() {
+    showFakeAd(5, () => {
+        coins += 150;
+        saveProgress();
+        updateControlUI();
+        alert("You earned 150 coins! 🪙");
+    });
+}
+
+function showInterstitialAd(callback) {
+    // Simulate a non-rewarded interstitial ad (no reward, just a skip button after 3 seconds)
+    showFakeAd(3, () => {
+        if (callback) callback();
+    });
 }
 
 // Initialize game
