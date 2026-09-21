@@ -9,13 +9,12 @@
 <body>
     <div id="game-wrapper">
         <div id="header">
+            <button id="menu-btn" onclick="openMenu()">☰</button>
             <h2>Level <span id="level-display">1</span></h2>
             <button id="restart-btn" onclick="restartLevel()">↻</button>
         </div>
         
-        <div id="game-container">
-            <!-- Tubes will be generated here -->
-        </div>
+        <div id="game-container"></div>
 
         <div id="controls">
             <button id="undo-btn" onclick="undoMove()">
@@ -27,11 +26,35 @@
         </div>
     </div>
 
-    <!-- The Win Screen (Hidden by default) -->
+    <!-- The Win Screen -->
     <div id="win-screen">
         <h1>AWESOME</h1>
         <p>Level Complete!</p>
         <button onclick="nextLevel()">Next</button>
+    </div>
+
+    <!-- --- NEW MENU SCREEN --- -->
+    <div id="menu-screen">
+        <div id="menu-header">
+            <div id="coin-display">🪙 <span id="coin-count">0</span></div>
+            <h2>Themes</h2>
+            <button id="close-menu-btn" onclick="closeMenu()">✕</button>
+        </div>
+        
+        <div id="menu-tabs">
+            <button class="tab active">🔬 Tubes</button>
+            <button class="tab">🖼️ Themes</button>
+            <button class="tab">⚪ Balls</button>
+            <button class="tab">⬜ Shapes</button>
+        </div>
+
+        <div id="level-grid">
+            <!-- Level cards will be generated here -->
+        </div>
+
+        <div id="menu-footer">
+            <button id="ad-reward-btn">📺 🪙 +150</button>
+        </div>
     </div>
 
     <script src="game.js"></script>
