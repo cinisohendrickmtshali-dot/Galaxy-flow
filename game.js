@@ -1,4 +1,3 @@
-// Available colors for the balls (Max 12 colors)
 const COLORS = [
     '#FF0000', // Red
     '#0000FF', // Blue
@@ -26,11 +25,10 @@ let maxUnlockedLevel = 1;
 let coins = 0;
 
 // --- LEVEL GENERATOR ---
-// This creates a unique, solvable level based on the level number
 function generateLevel(levelNum) {
-    // Difficulty scaling: More colors as you go up
-    let numColors = Math.min(2 + Math.floor(levelNum / 2), 10); 
-    let numBalls = 4; // Always 4 balls per color
+    // Difficulty scaling: More colors as you go up (gets harder faster now)
+    let numColors = Math.min(3 + Math.floor(levelNum / 1.5), 10); 
+    let numBalls = 4; 
     
     let balls = [];
     for (let i = 0; i < numColors; i++) {
@@ -39,13 +37,13 @@ function generateLevel(levelNum) {
         }
     }
     
-    // Shuffle the balls randomly
+    // Shuffle
     for (let i = balls.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [balls[i], balls[j]] = [balls[j], balls[i]];
     }
     
-    // Distribute the shuffled balls into tubes
+    // Distribute into tubes
     let levelTubes = [];
     for (let i = 0; i < numColors; i++) {
         let tube = [];
@@ -55,7 +53,7 @@ function generateLevel(levelNum) {
         levelTubes.push(tube);
     }
     
-    // Add 2 empty tubes to give the player space to move
+    // Add 2 empty tubes
     levelTubes.push([]);
     levelTubes.push([]);
     
@@ -84,12 +82,9 @@ function loadLevel(levelIndex) {
     }
 
     currentLevelIndex = levelIndex;
-    
-    // Generate the level dynamically based on the level number
     tubes = generateLevel(levelIndex + 1);
     
     selectedTubeIndex = null;
-    
     moveHistory = [];
     undosRemaining = 5;
     extraTubesRemaining = 2;
@@ -107,7 +102,7 @@ function restartLevel() {
 }
 
 function nextLevel() {
-    if (currentLevelIndex + 1 < 100) { // Allow up to 100 levels
+    if (currentLevelIndex + 1 < 100) { 
         if (currentLevelIndex + 2 > maxUnlockedLevel) {
             maxUnlockedLevel = currentLevelIndex + 2;
             saveProgress();
@@ -124,6 +119,7 @@ function updateControlUI() {
     document.getElementById('coin-count').innerText = coins;
 }
 
+// --- UPDATED RENDER FUNCTION (HIDDEN BALLS) ---
 function render() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
@@ -139,10 +135,20 @@ function render() {
 
         tubeDiv.onclick = () => handleTubeClick(index);
 
-        tube.forEach(color => {
+        tube.forEach((color, ballIndex) => {
             const ballDiv = document.createElement('div');
             ballDiv.className = 'ball';
-            ballDiv.style.backgroundColor = color;
+            
+            // Check if this is the TOP ball (last in array)
+            if (ballIndex === tube.length - 1) {
+                // Top ball: Show its real color
+                ballDiv.style.backgroundColor = color;
+            } else {
+                // Hidden ball: Show the question mark
+                ballDiv.classList.add('hidden-ball');
+                ballDiv.innerText = '?';
+            }
+            
             tubeDiv.appendChild(ballDiv);
         });
 
@@ -166,8 +172,7 @@ function handleTubeClick(index) {
             return;
         }
 
-        // --- NEW: MULTI-BALL MOVEMENT ---
-        // 1. Find how many top balls are the same color
+        // Multi-ball movement logic
         const topColor = fromTube[fromTube.length - 1];
         let count = 0;
         for (let i = fromTube.length - 1; i >= 0; i--) {
@@ -178,22 +183,18 @@ function handleTubeClick(index) {
             }
         }
 
-        // 2. Check how much space is available in the target tube
         const spaceAvailable = 4 - toTube.length;
         const toMove = Math.min(count, spaceAvailable);
 
-        // 3. Check if the move is valid
         const topTargetColor = toTube.length > 0 ? toTube[toTube.length - 1] : null;
         
         if (toMove > 0 && (toTube.length === 0 || topColor === topTargetColor)) {
-            // Record the move for the Undo button
             moveHistory.push({
                 from: selectedTubeIndex,
                 to: index,
                 count: toMove
             });
 
-            // Move the balls
             for (let i = 0; i < toMove; i++) {
                 let ball = fromTube.pop();
                 toTube.push(ball);
@@ -213,7 +214,6 @@ function undoMove() {
     const fromTube = tubes[lastMove.to]; 
     const toTube = tubes[lastMove.from]; 
     
-    // Move all the balls back
     for (let i = 0; i < lastMove.count; i++) {
         let ball = fromTube.pop();
         toTube.push(ball);
@@ -233,26 +233,21 @@ function addTube() {
     render();
 }
 
-// --- FIXED WIN CONDITION ---
-// You only win when every non-empty tube is completely full (4 balls) with the same color.
+// --- WIN CONDITION ---
 function checkWinCondition() {
     for (let i = 0; i < tubes.length; i++) {
         const tube = tubes[i];
-        if (tube.length === 0) continue; // Empty tubes are fine
-        
-        // A valid tube MUST have 4 balls
+        if (tube.length === 0) continue; 
         if (tube.length !== 4) return; 
         
         const firstColor = tube[0];
         for (let j = 1; j < tube.length; j++) {
-            if (tube[j] !== firstColor) return; // Mixed colors, not won
+            if (tube[j] !== firstColor) return; 
         }
     }
     
-    // If we get here, all non-empty tubes are perfectly sorted!
     coins += 10;
     saveProgress(); 
-    
     document.getElementById('win-screen').style.display = 'flex';
 }
 
@@ -269,7 +264,6 @@ function renderMenuGrid() {
     const grid = document.getElementById('level-grid');
     grid.innerHTML = '';
 
-    // Show 30 levels in the grid (You can increase this later)
     for (let i = 1; i <= 30; i++) {
         const card = document.createElement('div');
         const isUnlocked = i <= maxUnlockedLevel;
