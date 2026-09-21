@@ -1,6 +1,334 @@
-/* --- Keep all your existing CSS above this line --- */
+body {
+    background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow: hidden;
+}
 
-/* --- NEW: FAKE AD OVERLAY STYLING --- */
+#game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+#header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    background-color: rgba(0,0,0,0.3);
+    padding: 10px 15px;
+    border-radius: 15px;
+}
+
+#header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #fff;
+}
+
+#menu-btn, #settings-btn {
+    background: #5a5a9a;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+    max-width: 280px; 
+    flex-grow: 1;
+    padding: 10px 0;
+    overflow-y: auto;
+}
+
+#controls {
+    display: flex;
+    gap: 30px;
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#controls button {
+    background-color: #5a5a9a;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 26px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 0 #3a3a6a;
+    transition: all 0.1s ease;
+}
+
+#controls button:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: #cc3333;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 20px;
+    border: 2px solid #1a1a2e;
+}
+
+.tube {
+    width: 45px;
+    height: 180px;
+    border: 3px solid #6a6a9a;
+    border-top: none;
+    border-radius: 0 0 22px 22px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    padding-bottom: 4px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out;
+}
+
+.tube:active {
+    transform: scale(0.95);
+}
+
+.ball {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-bottom: 2px;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease-in-out;
+}
+
+.hidden-ball {
+    background-color: #2a2a4a !important; 
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.8);
+    border: 1px solid #4a4a6a;
+}
+
+/* --- WIN SCREEN --- */
+#win-screen {
+    display: none; 
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 26, 46, 0.95);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+#win-screen h1 {
+    color: #FFD700;
+    font-size: 60px;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 0 #000;
+}
+
+#win-screen p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+#win-screen button {
+    padding: 15px 50px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #00FF00;
+    border: none;
+    border-radius: 15px;
+    color: #1a1a2e;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #008800;
+    transition: all 0.1s ease;
+}
+
+#win-screen button:active {
+    transform: translateY(5px);
+    box-shadow: none;
+}
+
+/* --- MENU SCREEN --- */
+#menu-screen {
+    display: none; 
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 30%, #2a2a5a 0%, #1a1a2e 80%);
+    flex-direction: column;
+    z-index: 20;
+    overflow-y: auto;
+}
+
+#menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: rgba(0,0,0,0.2);
+}
+
+#coin-display {
+    background-color: #2a2a4a;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#close-menu-btn {
+    background: #cc3333;
+    border: none;
+    color: white;
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#menu-tabs {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background-color: #2a2a4a;
+}
+
+.tab {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.tab.active {
+    background-color: #5a5a9a;
+    color: white;
+}
+
+#level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 15px;
+    justify-content: center;
+}
+
+.level-card {
+    background-color: #2a2a4a;
+    border-radius: 12px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid #444;
+    transition: all 0.2s ease;
+}
+
+.level-card:active {
+    transform: scale(0.95);
+}
+
+.level-card.locked {
+    opacity: 0.6;
+}
+
+.level-card .lock-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.level-card .level-number {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#menu-footer {
+    margin-top: auto;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+#ad-reward-btn {
+    background-color: #00CC00;
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #008800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.1s ease;
+}
+
+#ad-reward-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+/* --- FAKE AD OVERLAY --- */
 #ad-overlay {
     display: none;
     position: fixed;
